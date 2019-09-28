@@ -1,12 +1,5 @@
-//
-//  DefaultsTests.swift
-//  DefaultsTests
-//
-//  Created by mikun on 2019/9/28.
-//  Copyright © 2019 庄黛淳华. All rights reserved.
-//
-
 import XCTest
+@testable import Defaults
 extension Defaults.Keys {
 	enum Test: String {
 		case enumKey
@@ -15,8 +8,7 @@ extension Defaults.Keys {
 	}
 	static let customKey = Defaults.CustomKey("CustomKey", prefix: "CustomKeyPrefix")
 }
-
-class DefaultsTests: XCTestCase {
+final class DefaultsTests: XCTestCase {
 	func removeUserDefault() {
 		let userDefaults = UserDefaults.standard
 		let dics = userDefaults.dictionaryRepresentation()
@@ -81,4 +73,10 @@ class DefaultsTests: XCTestCase {
 		Defaults[Defaults.Keys.customKey] = "912"
 		XCTAssertTrue(Defaults.defaults.string(forKey: "\(Defaults.Keys.customKey.prefix).\(Defaults.Keys.customKey.rawValue)") == "912")
 	}
+
+    static var allTests = [
+        ("testSubscript", testSubscript),
+        ("testRemove", testRemove),
+        ("testPrefix", testPrefix),
+    ]
 }
