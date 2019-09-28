@@ -79,8 +79,8 @@ let sign = Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign.ra
 #### Update
 
 ```
-Defaults[dic: currentUser][Defaults.Keys.Detail.sign.rawValue] = "I am batman"
-Defaults[dic: currentUser][Defaults.Keys.Detail.isLogin.rawValue] = true
+Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign.rawValue] = "I am batman"
+Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.isLogin.rawValue] = true
 ```
 
 
