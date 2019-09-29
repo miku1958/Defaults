@@ -41,17 +41,32 @@ public struct Defaults {
 	}
 }
 extension Defaults {
-	public static subscript<Key>(bool key: Key) -> Bool where Key: RawRepresentable, Key.RawValue == String {
-		return Self[key, default: false]
+	@inlinable public static subscript<Key>(bool key: Key) -> Bool where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			Self[key, default: false]
+		}
+		set {
+			Self[key] = newValue
+		}
     }
 	
-	public static subscript<Key>(string key: Key) -> String where Key: RawRepresentable, Key.RawValue == String {
-		return Self[key, default: ""]
+	@inlinable public static subscript<Key>(string key: Key) -> String where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			Self[key, default: ""]
+		}
+		set {
+			Self[key] = newValue
+		}
     }
-	public static subscript<Key>(date key: Key) -> Date? where Key: RawRepresentable, Key.RawValue == String {
-		return Self[key]
-    }
-	public static subscript<Key>(array key: Key) -> [Any] where Key: RawRepresentable, Key.RawValue == String {
+	@inlinable public static subscript<Key>(date key: Key) -> Date? where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			Self[key]
+		}
+		set {
+			Self[key] = newValue
+		}
+	}
+	@inlinable public static subscript<Key>(array key: Key) -> [Any] where Key: RawRepresentable, Key.RawValue == String {
 		get {
 			return Self[key, default: [Any]()]
 		}
@@ -60,7 +75,7 @@ extension Defaults {
 		}
     }
 	
-	public static subscript<Key, T>(dic key: Key) -> [String: T] where Key: RawRepresentable, Key.RawValue == String {
+	@inlinable public static subscript<Key, T>(dic key: Key) -> [String: T] where Key: RawRepresentable, Key.RawValue == String {
 		get {
 			let dic = Defaults[key] as? [String: Any] ?? [:]
 			return dic.compactMapValues { $0 as? T }
@@ -103,5 +118,19 @@ extension RawRepresentable where RawValue == String {
 		} else {
 			return "\(prefixKey).\(rawValue)"
 		}
+	}
+}
+
+extension Dictionary where Key == String {
+	@inlinable public subscript<Key>(key: Key) -> Value?  where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			self[key.rawValue]
+		}
+		set {
+			self[key.rawValue] = newValue
+		}
+	}
+	@inlinable public subscript<Key>(key: Key, default defaultValue: @autoclosure () -> Value) -> Value where Key: RawRepresentable, Key.RawValue == String {
+		self[key.rawValue, default: defaultValue()]
 	}
 }

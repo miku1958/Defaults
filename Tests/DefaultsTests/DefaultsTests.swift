@@ -48,11 +48,11 @@ final class DefaultsTests: XCTestCase {
 		Defaults[array: Defaults.Keys.Test.enumKey].append(4)
 		removeUserDefault()
 		let defaultValue = Int.random(in: 0...100)
-		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1.rawValue, default: defaultValue], defaultValue)
-		Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1.rawValue] = 256
-		Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey2.rawValue] = "512"
-		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1.rawValue, default: defaultValue], 256)
-		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey2.rawValue, default: ""], "512")
+		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1, default: defaultValue], defaultValue)
+		Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1] = 256
+		Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey2] = "512"
+		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1, default: defaultValue], 256)
+		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey2, default: ""], "512")
 		removeUserDefault()
 		let result = Defaults[Defaults.Keys.Test.enumKey]
 		XCTAssertNil(result)

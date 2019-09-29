@@ -71,18 +71,17 @@ extension Defaults.Keys {
 #### Read
 
 ```
-let sign = Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign.rawValue, default:""]
+let sign = Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign, default:""]
 or 
-let sign = Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign.rawValue] ?? ""
+let sign = Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign] ?? ""
 ```
+I add a Dictionary Extention to allow subscript String Enum Type in [String: Any]
 
 #### Update
 
 ```
-Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign.rawValue] = "I am batman"
-Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.isLogin.rawValue] = true
+Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.sign] = "I am batman"
+Defaults[dic: Defaults.Keys.currentUser][Defaults.Keys.Detail.isLogin] = true
 ```
-
-
 
 ### 
