@@ -131,6 +131,10 @@ extension Dictionary where Key == String {
 		}
 	}
 	@inlinable public subscript<Key>(key: Key, default defaultValue: @autoclosure () -> Value) -> Value where Key: RawRepresentable, Key.RawValue == String {
-		self[key.rawValue, default: defaultValue()]
+		if let value = self[key.rawValue] {
+			return value
+		} else {
+			return defaultValue()
+		}
 	}
 }
