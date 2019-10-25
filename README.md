@@ -39,7 +39,7 @@ Including Bool, String, Date
 ```
 let bool = Defaults[bool: Defaults.Keys.Detail.isLogin] // default is false
 or
-let bool = Defaults[Defaults.Keys.Detail.isLogin] as? Bool ?? false
+let bool = Defaults[Defaults.Keys.Detail.isLogin] ?? false
 ```
 
 
