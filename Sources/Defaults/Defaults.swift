@@ -8,30 +8,84 @@
 
 import Foundation
 
+@_disfavoredOverload
+func isUserDefaultsSupportTypes(_ value: Any) -> Bool {
+	switch value {
+	case
+		is Bool,
+		is String,
+		is Data,
+		is URL
+		: return true
+	case
+		is ObjCBool,
+		is NSNumber,
+		is NSString,
+		is NSData,
+		is NSURL,
+		is NSArray,
+		is NSDictionary
+		: return true
+	default:
+		return false
+	}
+}
+
+func isUserDefaultsSupportTypes<Value>(_ value: Value) -> Bool where Value: FixedWidthInteger {
+	return true
+}
+
+func isUserDefaultsSupportTypes<Value>(_ value: Value) -> Bool where Value: BinaryFloatingPoint {
+	return true
+}
+
 public struct Defaults {
 	public struct Keys { }
 	
 	public static var prefix = ""
 	
 	public static var defaults = UserDefaults.standard
-	
-	public static subscript<Key, R>(_ key: Key) -> R? where Key: RawRepresentable, Key.RawValue == String {
-		return defaults.object(forKey: key.keyValue) as? R
+
+	@_disfavoredOverload
+	public static subscript<Key>(_ key: Key) -> Any? where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			fatalError("Please define a Codable like, for example: Defaults[key] as Int")
+		}
+		set {
+			if newValue == nil {
+				removeObject(forKey: key)
+			} else {
+				fatalError("please set a codable object")
+			}
+		}
     }
-	public static subscript<Key, R>(_ key: Key, default defaultValue: R) -> R where Key: RawRepresentable, Key.RawValue == String {
-        return defaults.object(forKey: key.keyValue) as? R ?? defaultValue
+	public static subscript<Key, Value>(_ key: Key, default defaultValue: Value) -> Value where Key: RawRepresentable, Key.RawValue == String, Value: Codable {
+        return self[key] as Value? ?? defaultValue
     }
-    public static subscript<Key>(_ key: Key) -> Any? where Key: RawRepresentable, Key.RawValue == String {
+	public static subscript<Key, Value>(_ key: Key) -> Value? where Key: RawRepresentable, Key.RawValue == String, Value: Codable {
         get {
-            return defaults.object(forKey: key.keyValue)
+            let value = defaults.object(forKey: key.keyValue)
+			if let result = value as? Value {
+				return result
+			}
+			if
+				let data = value as? Data,
+				let result = try? JSONDecoder().decode(Value.self, from: data) {
+				return result
+			}
+			return nil
         }
         set {
-            guard let newValue = newValue else {
+            guard let value = newValue else {
                 removeObject(forKey: key)
                 return
             }
-            defaults.set(newValue, forKey: key.keyValue)
-            defaults.synchronize()
+			if isUserDefaultsSupportTypes(value) {
+				defaults.set(newValue, forKey: key.keyValue)
+			} else if let value = try? JSONEncoder().encode(value) {
+				defaults.set(value, forKey: key.keyValue)
+				defaults.synchronize()
+			}
         }
     }
 	
@@ -49,6 +103,15 @@ extension Defaults {
 			Self[key] = newValue
 		}
     }
+
+	@inlinable public static subscript<Key>(int key: Key) -> Int where Key: RawRepresentable, Key.RawValue == String {
+		get {
+			Self[key, default: 0]
+		}
+		set {
+			Self[key] = newValue
+		}
+	}
 	
 	@inlinable public static subscript<Key>(string key: Key) -> String where Key: RawRepresentable, Key.RawValue == String {
 		get {
@@ -68,22 +131,34 @@ extension Defaults {
 	}
 	@inlinable public static subscript<Key>(array key: Key) -> [Any] where Key: RawRepresentable, Key.RawValue == String {
 		get {
-			return Self[key, default: [Any]()]
+			let obj = defaults.object(forKey: key.keyValue)
+			if let data = obj as? Data, let array = try? JSONSerialization.jsonObject(with: data, options: []) as? [Any] {
+				return array
+			}
+			return obj as? [Any] ?? []
 		}
 		set {
-			Self[key] = newValue
+			defaults.set(newValue, forKey: key.keyValue)
 		}
     }
 	
-	@inlinable public static subscript<Key, T>(dic key: Key) -> [String: T] where Key: RawRepresentable, Key.RawValue == String {
+	@inlinable public static subscript<Key, Value>(dic key: Key) -> [String: Value] where Key: RawRepresentable, Key.RawValue == String, Value: Codable {
 		get {
-			let dic = Defaults[key] as? [String: Any] ?? [:]
-			return dic.compactMapValues { $0 as? T }
+			let dic = defaults.object(forKey: key.keyValue) as? [String: Any] ?? [:]
+			return dic.compactMapValues {
+				if let value = $0 as? Value {
+					return value
+				}
+				if let data = $0 as? Data, let value = try? JSONDecoder().decode(Value.self, from: data) {
+					return value
+				}
+				return nil
+			}
 		}
 		set {
-			var dic = Defaults[key] as? [String: Any] ?? newValue
+			var dic = defaults.object(forKey: key.keyValue) as? [String: Any] ?? newValue
 			dic.merge(newValue) { $1 }
-			Self[key] = dic
+			defaults.set(dic, forKey: key.keyValue)
 		}
     }
 }
@@ -106,7 +181,8 @@ extension Defaults {
 }
 
 extension RawRepresentable where RawValue == String {
-	fileprivate var keyValue: String {
+	@usableFromInline
+	var keyValue: String {
 		var prefixKey: String
 		if let customKey = self as? Defaults.CustomKey {
 			prefixKey = customKey.prefix

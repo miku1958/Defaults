@@ -54,7 +54,7 @@ final class DefaultsTests: XCTestCase {
 		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey1, default: defaultValue], 256)
 		XCTAssertEqual(Defaults[dic: Defaults.Keys.Test.enumKey][Defaults.Keys.Test.dicSubKey2, default: ""], "512")
 		removeUserDefault()
-		let result = Defaults[Defaults.Keys.Test.enumKey]
+		let result = Defaults[Defaults.Keys.Test.enumKey] as [Int]?
 		XCTAssertNil(result)
     }
 	
