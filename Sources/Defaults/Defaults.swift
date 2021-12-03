@@ -22,10 +22,12 @@ func isUserDefaultsSupportTypes(_ value: Any) -> Bool {
 		is NSNumber,
 		is NSString,
 		is NSData,
-		is NSURL,
-		is NSArray,
-		is NSDictionary
-		: return true
+		is NSURL:
+			return true
+	case let array as NSArray:
+		return array.allSatisfy(isUserDefaultsSupportTypes(_:))
+	case let dict as NSDictionary:
+		return dict.allKeys.allSatisfy(isUserDefaultsSupportTypes(_:)) && dict.allValues.allSatisfy(isUserDefaultsSupportTypes(_:))
 	default:
 		return false
 	}
